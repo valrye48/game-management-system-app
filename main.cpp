@@ -140,10 +140,21 @@ return 0;
 
 auto storeSection() -> int {
 
+std::cout << "Games available in the store: " << std::endl;
+std::cout << std::endl;
+//games
+std::cout << "Your wallet's balance is: " << std::endl; //balance
+std::cout << std::endl;
+
+std::cout << "Enter the title of the game you want to buy:" << std::endl;
+
+
 return 0;
 }
 
 auto walletSection() -> int {
+
+std::cout << "Your wallet: " << std::endl;
 
 return 0;
 }
