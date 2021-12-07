@@ -30,6 +30,8 @@ auto insertValuesToTableDBGame(Game game) -> void;
 auto getDetailsFromLoginDB(std::string login) -> void;
 auto getDetailsFromPasswordDB(std::string password) -> void;
 auto removeTableDB() -> void;
+auto authStore() -> void;
+auto authGamePurchase(std::string query) -> void;
 
 //game library functions
 auto authGameLibrary(std::string ownership) -> void;
@@ -41,11 +43,14 @@ std::string retrieved;
 std::string currentUsername;
 std::string currentUserID;
 std::string currentOwnershipID;
+double WalletBalance;
+std::string gameBuyQuery;
 
 //user objects
 User user1("username", "1234", "admin", "adminp", "101");
 Game game1("Mario", "Nintendo", 1984, "101");
 Game game3("Lol", "xd", 666, "101");
+Game game4("Test", "TestDev", 2013, "000");
 
 //callbacks (for getting info from the database)
 
@@ -67,6 +72,10 @@ auto callbackRetrieve(void* NotUsed, int argc, char** argv, char** azColName) {
 		retrieved += argv[i];
 	}
 
+	return 0;
+}
+
+auto callbackModify(void* NotUsed, int argc, char** argv, char** azColName) {
 	return 0;
 }
 
@@ -143,11 +152,16 @@ auto storeSection() -> int {
 
 std::cout << "Games available in the store: " << std::endl;
 std::cout << std::endl;
-//games
-std::cout << "Your wallet's balance is: " << std::endl; //balance
+authStore();
+std::cout << std::endl;
+std::cout << "Your wallet's balance is: " << WalletBalance << "." << std::endl; 
 std::cout << std::endl;
 
+gameBuyQuery.clear();
 std::cout << "Enter the title of the game you want to buy:" << std::endl;
+std::getline(std::cin, gameBuyQuery);
+authGamePurchase(gameBuyQuery);
+
 
 
 return 0;
@@ -155,7 +169,7 @@ return 0;
 
 auto walletSection() -> int {
 
-std::cout << "Your wallet: " << std::endl;
+std::cout << "Your wallet's balance is currently: " << WalletBalance << "." << std::endl;
 
 return 0;
 }
@@ -446,5 +460,22 @@ sqlite3_open("mainDatabase.db", &db);
 	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='" + ownership + "'";
 	char* error;
 	sqlite3_exec(db, get.c_str(), callback, 0, &error);
+	sqlite3_close(db);
+}
+
+auto authStore() -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='000'";
+	char* error;
+	sqlite3_exec(db, get.c_str(), callback, 0, &error);
+	sqlite3_close(db);
+}
+
+auto authGamePurchase(std::string query) -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	//TODO: check for wallet balance AND add a new column to game (price!) and user too...
+	std::string update = "UPDATE GAME SET OWNERSHIPID='" + currentOwnershipID + "' WHERE TITLE='" + query + "'";
+	char* error;
+	sqlite3_exec(db, update.c_str(), callbackModify, 0, &error);
 	sqlite3_close(db);
 }
