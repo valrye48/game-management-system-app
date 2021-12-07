@@ -45,6 +45,7 @@ std::string currentOwnershipID;
 //user objects
 User user1("username", "1234", "admin", "adminp", "101");
 Game game1("Mario", "Nintendo", 1984, "101");
+Game game3("Lol", "xd", 666, "101");
 
 //callbacks (for getting info from the database)
 
@@ -441,30 +442,9 @@ auto authPassword(std::string password) -> void {
 }
 
 auto authGameLibrary(std::string ownership) -> void {
-
 sqlite3_open("mainDatabase.db", &db);
-std::string getTitle = "SELECT TITLE FROM GAME WHERE OWNERSHIPID='" + ownership + "'";
-char* error;
-int authTitle = sqlite3_exec(db, getTitle.c_str(), callbackRetrieve, 0, &error);
-if (authTitle) {
-	std::cerr << "Failed to retrieve." << std::endl;
-} else {
-	std::cout << "Title: " << retrieved << std::endl;
-}
-std::string getDev = "SELECT DEVELOPER FROM GAME WHERE OWNERSHIPID='" + ownership + "'";
-int authDev = sqlite3_exec(db, getDev.c_str(), callbackRetrieve, 0, &error);
-if (authDev) {
-	std::cerr << "Failed to retrieve." << std::endl;
-} else {
-	std::cout << "Developer: " << retrieved << std::endl;
-}
-std::string getYear = "SELECT YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='" + ownership + "'";
-int authYear = sqlite3_exec(db, getYear.c_str(), callbackRetrieve, 0, &error);
-if (authYear) {
-	std::cerr << "Failed to retrieve." << std::endl;
-} else {
-	std::cout << "Year of release: " << retrieved << std::endl;
-}
-sqlite3_close(db);
-
+	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='" + ownership + "'";
+	char* error;
+	sqlite3_exec(db, get.c_str(), callback, 0, &error);
+	sqlite3_close(db);
 }
