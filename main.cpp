@@ -4,7 +4,6 @@
 #include "User.h"
 
 sqlite3* db;
-sqlite3* db2;
 
 //sections
 auto loginWindow() -> int;
@@ -32,10 +31,10 @@ auto getDetailsFromPasswordDB(std::string password) -> void;
 auto removeTableDB() -> void;
 auto removeTableDBGame() -> void;
 auto authStore() -> void;
-auto authGamePurchase(std::string query) -> void;
-
-//game library functions
+auto authGamePurchase(std::string query, std::string ownership) -> void;
+auto updatePriceInDatabase(std::string username, int value) -> void;
 auto authGameLibrary(std::string ownership) -> void;
+auto updateOIDInDatabase(std::string username, int value) -> void;
 
 //variables
 bool loginAuth;
@@ -44,8 +43,8 @@ std::string retrieved;
 std::string currentUsername;
 std::string currentUserID;
 std::string currentOwnershipID;
-double WalletBalance;
-std::string gameBuyQuery;
+int CurrentWalletBalance;
+std::string valueFromDB;
 
 //user objects
 User user1("username", "1234", "admin", "adminp", 0, "101");
@@ -145,6 +144,17 @@ std::cout << std::endl;
 
 authGameLibrary(currentOwnershipID);
 
+std::string rq;
+
+std::cout << "Type 'main' in order to return to main section";
+std::getline(std::cin, rq);
+if (rq == "main") {
+	mainSection();
+} else {
+	std::cerr << "Wrong prompt." << std::endl;
+	librarySection();
+}
+
 return 0;
 
 }
@@ -155,22 +165,42 @@ std::cout << "Games available in the store: " << std::endl;
 std::cout << std::endl;
 authStore();
 std::cout << std::endl;
-std::cout << "Your wallet's balance is: " << WalletBalance << "." << std::endl; 
+std::cout << "Your wallet's balance is: " << CurrentWalletBalance << "." << std::endl; 
 std::cout << std::endl;
 
-gameBuyQuery.clear();
+std::string gameBuyQuery;
 std::cout << "Enter the title of the game you want to buy:" << std::endl;
 std::getline(std::cin, gameBuyQuery);
-authGamePurchase(gameBuyQuery);
+authGamePurchase(gameBuyQuery, currentOwnershipID);
 
+std::string rq;
 
+std::cout << "Type 'main' in order to return to main section";
+std::getline(std::cin, rq);
+if (rq == "main") {
+	mainSection();
+} else {
+	std::cerr << "Wrong prompt." << std::endl;
+	storeSection();
+}
 
 return 0;
 }
 
 auto walletSection() -> int {
 
-std::cout << "Your wallet's balance is currently: " << WalletBalance << "." << std::endl;
+std::cout << "Your wallet's balance is currently: " << CurrentWalletBalance << "." << std::endl;
+
+std::string rq;
+
+std::cout << "Type 'main' in order to return to main section";
+std::getline(std::cin, rq);
+if (rq == "main") {
+	mainSection();
+} else {
+	std::cerr << "Wrong prompt." << std::endl;
+	walletSection();
+}
 
 return 0;
 }
@@ -355,13 +385,17 @@ auto getValuesFromTableDBGame() -> void {
 	sqlite3_close(db);
 }
 
-auto getValueFromTableDB(std::string value) -> void {
+auto getValueFromTableDB(std::string value, std::string query) -> void {
 
 sqlite3_open("mainDatabase.db", &db);
-	if (value == "USER_ID" || value == "USERNAME" || value == "LOGIN" || value == "PASSWORD" || value == "OWNERSHIPUSERID") {
-		std::string get = "SELECT " + value + " FROM USER";
+	if (value == "USER_ID" || value == "USERNAME" || value == "LOGIN" || value == "PASSWORD" || value == "OWNERSHIPUSERID" || value == "BALANCE") {
+		std::string get = "SELECT " + value + " FROM USER WHERE USERNAME='" + query + "'";
 		char* error;
-		sqlite3_exec(db, get.c_str(), callback, 0, &error);
+		if (sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error)) {
+			std::cout << "Failed to retrieve." << std::endl;
+		} else {
+			valueFromDB = retrieved;
+		}
 	}
 	else {
 		std::cerr << "The column name you've input does not exist in the database." << std::endl;
@@ -371,13 +405,17 @@ sqlite3_open("mainDatabase.db", &db);
 
 }
 
-auto getValueFromTableDBGame(std::string value) -> void {
+auto getValueFromTableDBGame(std::string value, std::string query) -> void {
 
 sqlite3_open("mainDatabase.db", &db);
-	if (value == "TITLE" || value == "DEVELOPER" || value == "YEAROFRELEASE" || value == "OWNERSHIPID") {
-		std::string get = "SELECT " + value + " FROM GAME";
+	if (value == "TITLE" || value == "DEVELOPER" || value == "YEAROFRELEASE" || value == "OWNERSHIPID" || value == "PRICE") {
+		std::string get = "SELECT " + value + " FROM GAME WHERE TITLE='" + query + "'";
 		char* error;
-		sqlite3_exec(db, get.c_str(), callback, 0, &error);
+		if (sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error)) {
+			std::cout << "Failed to retrieve." << std::endl;
+		} else {
+			valueFromDB = retrieved;
+		}
 	}
 	else {
 		std::cerr << "The column name you've input does not exist in the database." << std::endl;
@@ -393,6 +431,7 @@ auto getDetailsFromLoginDB(std::string login) -> void {
 	std::string getUsername = "SELECT USERNAME FROM USER WHERE LOGIN='" + login + "'";
     std::string getUserID = "SELECT USER_ID FROM USER WHERE LOGIN='" + login + "'";
 	std::string getOwnershipID = "SELECT OWNERSHIPIDUSER FROM USER WHERE LOGIN='" + login + "'";
+	std::string getBalance = "SELECT BALANCE FROM USER WHERE LOGIN='" + login + "'";
 	char* error;
 	int gUsername = sqlite3_exec(db, getUsername.c_str(), callbackRetrieve, 0, &error);
 	if (gUsername) {
@@ -413,6 +452,12 @@ auto getDetailsFromLoginDB(std::string login) -> void {
     } else {
         currentOwnershipID = retrieved;
     }
+	int gBalance = sqlite3_exec(db, getBalance.c_str(), callbackRetrieve, 0, &error);
+	if (gBalance) {
+		std::cout << "Failed to retrieve." << std::endl;
+	} else {
+		CurrentWalletBalance = std::stoi(retrieved);
+	}
 
 	sqlite3_close(db);
 }
@@ -422,6 +467,7 @@ auto getDetailsFromPasswordDB(std::string password) -> void {
 	std::string getUsername = "SELECT USERNAME FROM USER WHERE PASSWORD='" + password + "'";
     std::string getUserID = "SELECT USER_ID FROM USER WHERE PASSWORD='" + password + "'";
 	std::string getOwnershipID = "SELECT OWNERSHIPIDUSER FROM USER WHERE PASSWORD='" + password + "'";
+	std::string getBalance = "SELECT BALANCE FROM USER WHERE PASSWORD='" + password + "'";
 	char* error;
 	int gUsername = sqlite3_exec(db, getUsername.c_str(), callbackRetrieve, 0, &error);
 	if (gUsername) {
@@ -442,6 +488,12 @@ auto getDetailsFromPasswordDB(std::string password) -> void {
     } else {
         currentOwnershipID = retrieved;
     }
+	int gBalance = sqlite3_exec(db, getBalance.c_str(), callbackRetrieve, 0, &error);
+	if (gBalance) {
+		std::cout << "Failed to retrieve." << std::endl;
+	} else {
+		CurrentWalletBalance = std::stoi(retrieved);
+	}
 
 	sqlite3_close(db);
 }
@@ -453,12 +505,10 @@ auto authLogin(std::string login) -> void {
 	int auth = sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error);
 	if (login == retrieved) {
 		loginAuth = true;
-		//std::cout << "Your login was authenticated." << std::endl;
 		getDetailsFromLoginDB(login);
 	}
 	else {
 		loginAuth = false;
-		//std::cout << "Your login could not be authenticated." << std::endl;
 	}
 
 	sqlite3_close(db);
@@ -472,12 +522,10 @@ auto authPassword(std::string password) -> void {
 	int auth = sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error);
 	if (password == retrieved) {
 		passwordAuth = true;
-		//std::cout << "Your password was authenticated." << std::endl;
 		getDetailsFromPasswordDB(password);
 	}
 	else {
 		passwordAuth = false;
-		//std::cout << "Your password could not be authenticated." << std::endl;
 	}
 
 	sqlite3_close(db);
@@ -495,15 +543,50 @@ auto authStore() -> void {
 	sqlite3_open("mainDatabase.db", &db);
 	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='000'";
 	char* error;
-	sqlite3_exec(db, get.c_str(), callback, 0, &error);
+	if (sqlite3_exec(db, get.c_str(), callback, 0, &error)) {
+		std::cout << "Failed to view store." << std::endl;
+	} else {
+		std::cout << "";
+	}
 	sqlite3_close(db);
 }
 
-auto authGamePurchase(std::string query) -> void {
-	sqlite3_open("mainDatabase.db", &db);
-	//TODO: check for wallet balance AND add a new column to game (price!) and user too...
-	std::string update = "UPDATE GAME SET OWNERSHIPID='" + currentOwnershipID + "' WHERE TITLE='" + query + "'";
+auto updatePriceInDatabase(std::string username, int value) -> void {
+    sqlite3_open("mainDatabase.db", &db);
+	std::string update = "UPDATE USER SET BALANCE='" + std::to_string(value) + "' WHERE USERNAME='" + username + "'";
 	char* error;
-	sqlite3_exec(db, update.c_str(), callbackModify, 0, &error);
+	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
+			std::cerr << "Update failed." << std::endl;
+		} else {
+			std::cout << "Update successful." << std::endl;
+		}
+
+	sqlite3_close(db);
+
+}
+
+auto updateOIDInDatabase(std::string ow, int value) -> void {
+    sqlite3_open("mainDatabase.db", &db);
+	std::string update = "UPDATE GAME SET OWNERSHIPID='" + std::to_string(value) + "' WHERE TITLE='" + ow + "'";
+	char* error;
+	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
+			std::cerr << "Purchase failed." << std::endl;
+		} else {
+			std::cout << "Your purchase was successful!" << std::endl;
+		}
+
+	sqlite3_close(db);
+
+}
+
+auto authGamePurchase(std::string query, std::string ownership) -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	getValueFromTableDBGame("PRICE", query);
+	if (CurrentWalletBalance >= std::stoi(valueFromDB)) {
+		updateOIDInDatabase(query, std::stoi(ownership));
+	} else {
+		std::cerr << "Not enough funds." << std::endl;
+	}
+	
 	sqlite3_close(db);
 }
