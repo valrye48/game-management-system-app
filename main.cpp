@@ -30,6 +30,7 @@ auto insertValuesToTableDBGame(Game game) -> void;
 auto getDetailsFromLoginDB(std::string login) -> void;
 auto getDetailsFromPasswordDB(std::string password) -> void;
 auto removeTableDB() -> void;
+auto removeTableDBGame() -> void;
 auto authStore() -> void;
 auto authGamePurchase(std::string query) -> void;
 
@@ -47,10 +48,10 @@ double WalletBalance;
 std::string gameBuyQuery;
 
 //user objects
-User user1("username", "1234", "admin", "adminp", "101");
-Game game1("Mario", "Nintendo", 1984, "101");
-Game game3("Lol", "xd", 666, "101");
-Game game4("Test", "TestDev", 2013, "000");
+User user1("username", "1234", "admin", "adminp", 0, "101");
+Game game1("Mario", "Nintendo", 1984, 10, "101");
+Game game3("Lol", "xd", 666, 5, "101");
+Game game4("Test", "TestDev", 2013, 15, "000");
 
 //callbacks (for getting info from the database)
 
@@ -119,7 +120,7 @@ std::cout << std::endl;
 	std::cout << std::endl;
 	std::cout << "Game Store opened successfully." << std::endl;
 	std::cout << std::endl;
-	std::cout << "Welcome, " + currentUsername + " " + currentUserID + "!" << std::endl;
+	std::cout << "Welcome, " + currentUsername + "!" << std::endl;
     std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet" << std::endl;
     std::string request;
     std::getline(std::cin, request);
@@ -192,6 +193,7 @@ auto createTableDB() -> void {
 		"USER_ID INTEGER NOT NULL,"
 		"LOGIN STRING NOT NULL,"
         "PASSWORD STRING NOT NULL,"
+		"BALANCE INTEGER NOT NULL,"
 		"OWNERSHIPIDUSER STRING NOT NULL); ";
 
 	sqlite3_open("mainDatabase.db", &db);
@@ -219,6 +221,7 @@ auto createTableDBGame() -> void {
 		"TITLE STRING NOT NULL,"
 		"DEVELOPER STRING NOT NULL,"
 		"YEAROFRELEASE INTEGER NOT NULL,"
+		"PRICE INTEGER NOT NULL,"
 		"OWNERSHIPID STRING NOT NULL); ";
 
 	sqlite3_open("mainDatabase.db", &db);
@@ -264,15 +267,39 @@ sqlite3_open("mainDatabase.db", &db);
 
 }
 
+auto removeTableDBGame() -> void {
+std::string sql = "DROP TABLE GAME";
+
+sqlite3_open("mainDatabase.db", &db);
+	int openDb;
+	char* error;
+
+	openDb = sqlite3_exec(db, sql.c_str(), NULL, 0, &error);
+
+	if (openDb != SQLITE_OK) {
+		std::cerr << "The table could not be deleted." << std::endl;
+		sqlite3_free(error);
+	}
+	else {
+		std::cout << "The table was deleted successfully." << std::endl;
+	}
+
+	std::cout << std::endl;
+
+	sqlite3_close(db);
+
+}
+
 auto insertValuesToTableDB(User user) -> void {
 	sqlite3_open("mainDatabase.db", &db);
 	std::string username = user.getUsername();
     std::string userID = user.getUserID();
     std::string login = user.getLogin();
 	std::string password = user.getPassword();
+	std::string balance = std::to_string(user.getBalance());
     std::string ownershipIDUser = user.getOwnershipIDUser();
-	std::string insert = "INSERT INTO USER ('USERNAME', 'USER_ID', 'LOGIN', 'PASSWORD', 'OWNERSHIPIDUSER') VALUES ('" + username +"', '" + userID + "', '" 
-		+ login + "', '" + password + "', '" + ownershipIDUser + "')";
+	std::string insert = "INSERT INTO USER ('USERNAME', 'USER_ID', 'LOGIN', 'PASSWORD', 'BALANCE', 'OWNERSHIPIDUSER') VALUES ('" + username +"', '" + userID + "', '" 
+		+ login + "', '" + password + "', '" + balance + "', '" + ownershipIDUser + "')";
 	char* error;
 	sqlite3_exec(db, insert.c_str(), callback, 0, &error);
 	sqlite3_close(db);
@@ -283,9 +310,10 @@ auto insertValuesToTableDBGame(Game game) -> void {
 	std::string title = game.getTitle();
     std::string developer = game.getDeveloper();
 	int yearOfRelease = game.getYearOfRelease();
+	int price = game.getPrice();
 	std::string ownershipID = game.getOwnershipID();
-	std::string insert = "INSERT INTO GAME ('TITLE', 'DEVELOPER', 'YEAROFRELEASE', 'OWNERSHIPID') VALUES ('" + title +"', '" + developer + "', '" 
-		+ std::to_string(yearOfRelease) + "', '" + ownershipID + "')";
+	std::string insert = "INSERT INTO GAME ('TITLE', 'DEVELOPER', 'YEAROFRELEASE', 'PRICE', 'OWNERSHIPID') VALUES ('" + title +"', '" + developer + "', '" 
+		+ std::to_string(yearOfRelease) + "', '" + std::to_string(price) + "', '" + ownershipID + "')";
 	char* error;
 	sqlite3_exec(db, insert.c_str(), callback, 0, &error);
 	sqlite3_close(db);
@@ -425,12 +453,12 @@ auto authLogin(std::string login) -> void {
 	int auth = sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error);
 	if (login == retrieved) {
 		loginAuth = true;
-		std::cout << "Your login was authenticated." << std::endl;
+		//std::cout << "Your login was authenticated." << std::endl;
 		getDetailsFromLoginDB(login);
 	}
 	else {
 		loginAuth = false;
-		std::cout << "Your login could not be authenticated." << std::endl;
+		//std::cout << "Your login could not be authenticated." << std::endl;
 	}
 
 	sqlite3_close(db);
@@ -444,12 +472,12 @@ auto authPassword(std::string password) -> void {
 	int auth = sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error);
 	if (password == retrieved) {
 		passwordAuth = true;
-		std::cout << "Your password was authenticated." << std::endl;
+		//std::cout << "Your password was authenticated." << std::endl;
 		getDetailsFromPasswordDB(password);
 	}
 	else {
 		passwordAuth = false;
-		std::cout << "Your password could not be authenticated." << std::endl;
+		//std::cout << "Your password could not be authenticated." << std::endl;
 	}
 
 	sqlite3_close(db);

@@ -4,15 +4,17 @@ std::string username;
 std::string user_id;
 std::string login;
 std::string password;
+int balance;
 std::string ownershipIDUser;
 
 public:
 
-User(std::string username, std::string user_id, std::string login, std::string password, std::string ownershipIDUser) {
+User(std::string username, std::string user_id, std::string login, std::string password, int balance, std::string ownershipIDUser) {
 this->user_id = user_id;
 this->username = username;
 this->login = login;
 this->password = password;
+this->balance = balance;
 this->ownershipIDUser = ownershipIDUser;
 }
 
@@ -36,6 +38,14 @@ auto getPassword() -> std::string {
 return password;
 }
 
+auto getBalance() -> int {
+    return balance;
+}
+
+auto setBalance(int newBalance) -> void {
+    balance = newBalance;
+}
+
 auto getOwnershipIDUser() -> std::string {
 return ownershipIDUser;
 }
@@ -51,13 +61,15 @@ private:
 std::string title;
 std::string developer;
 int yearOfRelease;
+int price;
 std::string ownershipID;
 
 public:
-Game(std::string title, std::string developer, int yearOfRelease, std::string ownershipID) {
+Game(std::string title, std::string developer, int yearOfRelease, int price, std::string ownershipID) {
 this->title = title;
 this->developer = developer;
 this->yearOfRelease = yearOfRelease;
+this->price = price;
 this->ownershipID = ownershipID;
 }
 
@@ -71,6 +83,10 @@ return developer;
 
 auto getYearOfRelease() -> int {
 return yearOfRelease;
+}
+
+auto getPrice() -> int {
+    return price;
 }
 
 auto getOwnershipID() -> std::string {
