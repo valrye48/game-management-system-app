@@ -51,6 +51,11 @@ User user1("username", "1234", "admin", "adminp", 0, "101");
 Game game1("Mario", "Nintendo", 1984, 10, "101");
 Game game3("Lol", "xd", 666, 5, "101");
 Game game4("Test", "TestDev", 2013, 15, "000");
+Game game5("Game", "Dev", 2003, 30, "000");
+Game game6("Gaming", "Developer", 2009, 50, "000");
+Game game7("abc", "bcd", 2000, 20, "000");
+Game game8("bbbb", "aaaaa", 2001, 5, "000");
+Game game9("jjj", "dddd", 1999, 4, "000");
 
 //callbacks (for getting info from the database)
 
@@ -146,7 +151,7 @@ authGameLibrary(currentOwnershipID);
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section";
+std::cout << "Type 'main' in order to return to main section ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
@@ -175,7 +180,7 @@ authGamePurchase(gameBuyQuery, currentOwnershipID);
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section";
+std::cout << "Type 'main' in order to return to main section ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
@@ -193,7 +198,7 @@ std::cout << "Your wallet's balance is currently: " << CurrentWalletBalance << "
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section";
+std::cout << "Type 'main' in order to return to main section ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
@@ -541,7 +546,7 @@ sqlite3_open("mainDatabase.db", &db);
 
 auto authStore() -> void {
 	sqlite3_open("mainDatabase.db", &db);
-	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE FROM GAME WHERE OWNERSHIPID='000'";
+	std::string get = "SELECT TITLE, DEVELOPER, YEAROFRELEASE, PRICE FROM GAME WHERE OWNERSHIPID='000'";
 	char* error;
 	if (sqlite3_exec(db, get.c_str(), callback, 0, &error)) {
 		std::cout << "Failed to view store." << std::endl;
@@ -580,13 +585,22 @@ auto updateOIDInDatabase(std::string ow, int value) -> void {
 }
 
 auto authGamePurchase(std::string query, std::string ownership) -> void {
-	sqlite3_open("mainDatabase.db", &db);
-	getValueFromTableDBGame("PRICE", query);
-	if (CurrentWalletBalance >= std::stoi(valueFromDB)) {
+	sqlite3_open("mainDatabase.db", &db);	
+	getValueFromTableDBGame("TITLE", query);
+	if (query == valueFromDB) {
+       getValueFromTableDBGame("PRICE", query);
+	   if (CurrentWalletBalance >= std::stoi(valueFromDB)) {
 		updateOIDInDatabase(query, std::stoi(ownership));
+		int updatedBalance = CurrentWalletBalance - std::stoi(valueFromDB);
+		CurrentWalletBalance = updatedBalance;
+		updatePriceInDatabase(currentUsername, updatedBalance);
 	} else {
 		std::cerr << "Not enough funds." << std::endl;
 	}
+	} else {
+		std::cerr << "The name you've input does not exist in the database." << std::endl;
+	}
+	
 	
 	sqlite3_close(db);
 }
