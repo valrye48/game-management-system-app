@@ -144,6 +144,8 @@ return 0;
 
 auto librarySection() -> int {
 
+std::cout << std::endl;
+std::cout << std::endl;
 std::cout << "Your game library:" << std::endl;
 std::cout << std::endl;
 
@@ -151,7 +153,7 @@ authGameLibrary(currentOwnershipID);
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section ";
+std::cout << "Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
@@ -174,13 +176,18 @@ std::cout << "Your wallet's balance is: " << CurrentWalletBalance << "." << std:
 std::cout << std::endl;
 
 std::string gameBuyQuery;
-std::cout << "Enter the title of the game you want to buy:" << std::endl;
+std::cout << "Enter the title of the game you want to buy OR type 'x' to exit to the main section:" << std::endl;
 std::getline(std::cin, gameBuyQuery);
-authGamePurchase(gameBuyQuery, currentOwnershipID);
+if (gameBuyQuery == "x") {
+	mainSection();
+} else {
+    authGamePurchase(gameBuyQuery, currentOwnershipID);
+}
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section ";
+std::cout << std::endl;
+std::cout << "Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
@@ -194,11 +201,14 @@ return 0;
 
 auto walletSection() -> int {
 
+std::cout << std::endl;
+std::cout << std::endl;
+
 std::cout << "Your wallet's balance is currently: " << CurrentWalletBalance << "." << std::endl;
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section ";
+std::cout << "Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
