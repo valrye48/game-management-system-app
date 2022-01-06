@@ -35,6 +35,8 @@ auto authGamePurchase(std::string query, std::string ownership) -> void;
 auto updatePriceInDatabase(std::string username, int value) -> void;
 auto authGameLibrary(std::string ownership) -> void;
 auto updateOIDInDatabase(std::string username, int value) -> void;
+auto updatePriceGameInDatabase(std::string query, int value, std::string ownership) -> void;
+auto authGameSell(std::string username, std::string query, std::string ownership, int price) -> void;
 
 //variables
 bool loginAuth;
@@ -125,7 +127,7 @@ std::cout << std::endl;
 	std::cout << "Game Store opened successfully." << std::endl;
 	std::cout << std::endl;
 	std::cout << "Welcome, " + currentUsername + "!" << std::endl;
-    std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet" << std::endl;
+    std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet, exit" << std::endl;
     std::string request;
     std::getline(std::cin, request);
     if (request == "seeLibrary") {
@@ -134,6 +136,8 @@ std::cout << std::endl;
        storeSection();
     } else if (request == "seeWallet") {
        walletSection();
+	} else if (request == "exit") {
+		exit(0);
     } else {
        std::cout << "Wrong prompt." << std::endl;
        mainSection();
@@ -153,13 +157,27 @@ authGameLibrary(currentOwnershipID);
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section: ";
+std::cout << "Enter the title of the game you want to sell OR type 'x' to exit to the main section:";
 std::getline(std::cin, rq);
-if (rq == "main") {
+if (rq == "x") {
+	mainSection();
+} else {
+	std::string pr;
+	std::cout << "Enter the price you want to sell it for: " << std::endl;
+	std::getline(std::cin, pr);
+	authGameSell(currentUsername, rq, currentOwnershipID, std::stoi(pr));
+}
+
+std::string rq1;
+
+std::cout << std::endl;
+std::cout << "Type 'main' in order to return to main section: ";
+std::getline(std::cin, rq1);
+if (rq1 == "main") {
 	mainSection();
 } else {
 	std::cerr << "Wrong prompt." << std::endl;
-	librarySection();
+	storeSection();
 }
 
 return 0;
@@ -580,14 +598,27 @@ auto updatePriceInDatabase(std::string username, int value) -> void {
 
 }
 
+auto updatePriceGameInDatabase(std::string query, int value, std::string ownership) -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	std::string update = "UPDATE GAME SET PRICE='" + std::to_string(value) + "' WHERE TITLE='" + query + "' AND OWNERSHIPID='" + ownership + "'";
+	char* error;
+	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
+			std::cerr << "Update failed." << std::endl;
+		} else {
+			std::cout << "Update successful." << std::endl;
+		}
+
+	sqlite3_close(db);
+}
+
 auto updateOIDInDatabase(std::string ow, int value) -> void {
     sqlite3_open("mainDatabase.db", &db);
 	std::string update = "UPDATE GAME SET OWNERSHIPID='" + std::to_string(value) + "' WHERE TITLE='" + ow + "'";
 	char* error;
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
-			std::cerr << "Purchase failed." << std::endl;
+			std::cerr << "Failed." << std::endl;
 		} else {
-			std::cout << "Your purchase was successful!" << std::endl;
+			std::cout << "Your update was successful!" << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -613,4 +644,20 @@ auto authGamePurchase(std::string query, std::string ownership) -> void {
 	
 	
 	sqlite3_close(db);
+}
+
+auto authGameSell(std::string username, std::string query, std::string ownership, int price) -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	getValueFromTableDBGame("TITLE", query);
+	if (query == valueFromDB) {
+		updatePriceGameInDatabase(query, price, ownership);
+        int updatedBalance = CurrentWalletBalance + price;
+		CurrentWalletBalance = updatedBalance;
+		updatePriceInDatabase(currentUsername, updatedBalance);
+		updateOIDInDatabase(query, 000);
+	} else {
+		std::cerr << "The name you've input does not exist in the database." << std::endl;
+	}
+
+    sqlite3_close(db);
 }
