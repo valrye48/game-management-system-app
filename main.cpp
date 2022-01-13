@@ -711,14 +711,10 @@ auto changeUsername(std::string nUsername, std::string id) -> void {
 
 auto updateUsernameInDatabase(std::string newUsername, std::string id) -> void {
     sqlite3_open("mainDatabase.db", &db);
-	getValueFromTableDB("USERNAME", id);
-	if (newUsername != valueFromDB) {
-        changeUsername(newUsername, id);
-		currentUsername = newUsername;
-	} else {
-		std::cerr << "This username is already taken." << std::endl;
+	
+    changeUsername(newUsername, id);
+	currentUsername = newUsername;
 
-	}
 	sqlite3_close(db);
 
 }
