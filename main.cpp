@@ -32,12 +32,15 @@ auto removeTableDB() -> void;
 auto removeTableDBGame() -> void;
 auto authStore() -> void;
 auto authGamePurchase(std::string query, std::string ownership) -> void;
-auto updatePriceInDatabase(std::string username, int value) -> void;
+auto updatePriceInDatabase(std::string userid, int value) -> void;
 auto authGameLibrary(std::string ownership) -> void;
-auto updateOIDInDatabase(std::string username, int value) -> void;
+auto updateOIDInDatabase(std::string userid, int value) -> void;
 auto updatePriceGameInDatabase(std::string query, int value, std::string ownership) -> void;
-auto authGameSell(std::string username, std::string query, std::string ownership, int price) -> void;
+auto authGameSell(std::string userid, std::string query, std::string ownership, int price) -> void;
 auto optionsSection() -> int;
+auto updatePasswordInDatabase(std::string pass, std::string id) -> void;
+auto updateUsernameInDatabase(std::string newUsername, std::string id) -> void;
+auto changeUsername(std::string nUsername, std::string id) -> void;
 
 //variables
 bool loginAuth;
@@ -53,8 +56,7 @@ std::string valueFromDB;
 User user1("username", "1234", "admin", "adminp", 0, "101");
 User user2("username2", "1235", "user", "lol123", 0, "202");
 
-//implement username change - functionality of userid!
-
+//game objects
 Game game1("Mario", "Nintendo", 1984, 10, "101");
 Game game3("Lol", "xd", 666, 5, "101");
 Game game4("Test", "TestDev", 2013, 15, "000");
@@ -67,7 +69,7 @@ Game game10("gra", "dev", 2016, 20, "202");
 Game game11("Gemu", "Nintendo", 2017, 25, "202");
 Game game12("Spiel", "ADev", 2006, 30, "202");
 
-//callbacks (for getting info from the database)
+//callbacks (for viewing/modification of database elements)
 
 auto callback(void* NotUsed, int argc, char** argv, char** ColumnName) {
 	for (int i = 0; i < argc; i++)
@@ -123,7 +125,7 @@ if (loginAuth == true && passwordAuth == true) {
 		mainSection();
 	}
 	else {
-		std::cout << "Your login and password details could not be authenticated.";
+		std::cout << "Your login and password details could not be authenticated." << std::endl;
 		exit(0);
 	}
 
@@ -149,7 +151,7 @@ std::cout << std::endl;
        walletSection();
 	} else if (request == "exit") {
 		exit(0);
-	} else if (request == "options" {
+	} else if (request == "options") {
 		optionsSection();
     } else {
        std::cout << "Wrong prompt." << std::endl;
@@ -179,7 +181,7 @@ if (rq == "x") {
 	std::string pr;
 	std::cout << "Enter the price you want to sell it for: " << std::endl;
 	std::getline(std::cin, pr);
-	authGameSell(currentUsername, rq, currentOwnershipID, std::stoi(pr));
+	authGameSell(currentUserID, rq, currentOwnershipID, std::stoi(pr));
 }
 
 std::string rq1;
@@ -277,9 +279,9 @@ auto optionsSection() -> int {
 		std::cout << "Type a new username:" << std::endl;
 		std::getline(std::cin, us);
 
-		//function modifying username
+		updateUsernameInDatabase(us, currentUserID);
 
-
+		optionsSection();
 
 	} else if (rq == "changePassword") {
 		std::string ps;
@@ -289,9 +291,8 @@ auto optionsSection() -> int {
 		std::cout << "Repeat password:" << std::endl;
 		std::getline(std::cin, psC);
 		if (ps == psC) {
-
-			//function changing password
-
+			updatePasswordInDatabase(ps, currentUserID);
+			optionsSection();
 		} else {
 			std::cout << "The passwords differ. Please try again." << std::endl;
 			optionsSection();
@@ -301,6 +302,7 @@ auto optionsSection() -> int {
 		mainSection();
 	} else {
 		std::cerr << "Wrong prompt.";
+		optionsSection();
 	}
 
 	return 0;
@@ -491,7 +493,7 @@ auto getValueFromTableDB(std::string value, std::string query) -> void {
 
 sqlite3_open("mainDatabase.db", &db);
 	if (value == "USER_ID" || value == "USERNAME" || value == "LOGIN" || value == "PASSWORD" || value == "OWNERSHIPUSERID" || value == "BALANCE") {
-		std::string get = "SELECT " + value + " FROM USER WHERE USERNAME='" + query + "'";
+		std::string get = "SELECT " + value + " FROM USER WHERE USER_ID='" + query + "'";
 		char* error;
 		if (sqlite3_exec(db, get.c_str(), callbackRetrieve, 0, &error)) {
 			std::cout << "Failed to retrieve." << std::endl;
@@ -653,14 +655,14 @@ auto authStore() -> void {
 	sqlite3_close(db);
 }
 
-auto updatePriceInDatabase(std::string username, int value) -> void {
+auto updatePriceInDatabase(std::string userid, int value) -> void {
     sqlite3_open("mainDatabase.db", &db);
-	std::string update = "UPDATE USER SET BALANCE='" + std::to_string(value) + "' WHERE USERNAME='" + username + "'";
+	std::string update = "UPDATE USER SET BALANCE='" + std::to_string(value) + "' WHERE USER_ID='" + userid + "'";
 	char* error;
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
 			std::cerr << "Update failed." << std::endl;
 		} else {
-			std::cout << "Update successful." << std::endl;
+			std::cout << "";
 		}
 
 	sqlite3_close(db);
@@ -674,7 +676,7 @@ auto updatePriceGameInDatabase(std::string query, int value, std::string ownersh
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
 			std::cerr << "Update failed." << std::endl;
 		} else {
-			std::cout << "Update successful." << std::endl;
+			std::cout << "Your price was set." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -687,7 +689,48 @@ auto updateOIDInDatabase(std::string ow, int value) -> void {
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
 			std::cerr << "Failed." << std::endl;
 		} else {
-			std::cout << "Your update was successful!" << std::endl;
+			std::cout << "Success - game details were updated." << std::endl;
+		}
+
+	sqlite3_close(db);
+
+}
+
+auto changeUsername(std::string nUsername, std::string id) -> void {
+	sqlite3_open("mainDatabase.db", &db);
+	std::string update = "UPDATE USER SET USERNAME='" + nUsername + "' WHERE USER_ID='" + id + "'";
+	    char* error;
+	    if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
+			std::cerr << "Failed." << std::endl;
+		} else {
+			std::cout << "Username changed." << std::endl;
+		}
+
+	sqlite3_close(db);
+}
+
+auto updateUsernameInDatabase(std::string newUsername, std::string id) -> void {
+    sqlite3_open("mainDatabase.db", &db);
+	getValueFromTableDB("USERNAME", id);
+	if (newUsername != valueFromDB) {
+        changeUsername(newUsername, id);
+		currentUsername = newUsername;
+	} else {
+		std::cerr << "This username is already taken." << std::endl;
+
+	}
+	sqlite3_close(db);
+
+}
+
+auto updatePasswordInDatabase(std::string pass, std::string id) -> void {
+    sqlite3_open("mainDatabase.db", &db);
+	std::string update = "UPDATE USER SET PASSWORD='" + pass + "' WHERE USER_ID='" + id + "'";
+	char* error;
+	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, &error)) {
+			std::cerr << "Failed." << std::endl;
+		} else {
+			std::cout << "Password changed." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -703,7 +746,7 @@ auto authGamePurchase(std::string query, std::string ownership) -> void {
 		updateOIDInDatabase(query, std::stoi(ownership));
 		int updatedBalance = CurrentWalletBalance - std::stoi(valueFromDB);
 		CurrentWalletBalance = updatedBalance;
-		updatePriceInDatabase(currentUsername, updatedBalance);
+		updatePriceInDatabase(currentUserID, updatedBalance);
 	} else {
 		std::cerr << "Not enough funds." << std::endl;
 	}
@@ -715,14 +758,14 @@ auto authGamePurchase(std::string query, std::string ownership) -> void {
 	sqlite3_close(db);
 }
 
-auto authGameSell(std::string username, std::string query, std::string ownership, int price) -> void {
+auto authGameSell(std::string userid, std::string query, std::string ownership, int price) -> void {
 	sqlite3_open("mainDatabase.db", &db);
 	getValueFromTableDBGame("TITLE", query);
 	if (query == valueFromDB) {
 		updatePriceGameInDatabase(query, price, ownership);
         int updatedBalance = CurrentWalletBalance + price;
 		CurrentWalletBalance = updatedBalance;
-		updatePriceInDatabase(currentUsername, updatedBalance);
+		updatePriceInDatabase(currentUserID, updatedBalance);
 		updateOIDInDatabase(query, 000);
 	} else {
 		std::cerr << "The name you've input does not exist in the database." << std::endl;
