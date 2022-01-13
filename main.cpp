@@ -51,7 +51,10 @@ std::string valueFromDB;
 //user objects
 User user1("username", "1234", "admin", "adminp", 0, "101");
 User user2("username2", "1235", "user", "lol123", 0, "202");
+
 //implement second user!
+//implement username change - functionality of userid!
+
 Game game1("Mario", "Nintendo", 1984, 10, "101");
 Game game3("Lol", "xd", 666, 5, "101");
 Game game4("Test", "TestDev", 2013, 15, "000");
