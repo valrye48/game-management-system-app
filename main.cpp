@@ -37,6 +37,7 @@ auto authGameLibrary(std::string ownership) -> void;
 auto updateOIDInDatabase(std::string username, int value) -> void;
 auto updatePriceGameInDatabase(std::string query, int value, std::string ownership) -> void;
 auto authGameSell(std::string username, std::string query, std::string ownership, int price) -> void;
+auto optionsSection() -> int;
 
 //variables
 bool loginAuth;
@@ -52,7 +53,6 @@ std::string valueFromDB;
 User user1("username", "1234", "admin", "adminp", 0, "101");
 User user2("username2", "1235", "user", "lol123", 0, "202");
 
-//implement second user!
 //implement username change - functionality of userid!
 
 Game game1("Mario", "Nintendo", 1984, 10, "101");
@@ -63,6 +63,9 @@ Game game6("Gaming", "Developer", 2009, 50, "000");
 Game game7("abc", "bcd", 2000, 20, "000");
 Game game8("bbbb", "aaaaa", 2001, 5, "000");
 Game game9("jjj", "dddd", 1999, 4, "000");
+Game game10("gra", "dev", 2016, 20, "202");
+Game game11("Gemu", "Nintendo", 2017, 25, "202");
+Game game12("Spiel", "ADev", 2006, 30, "202");
 
 //callbacks (for getting info from the database)
 
@@ -135,7 +138,7 @@ std::cout << std::endl;
 	std::cout << "=================================" << std::endl;
 	std::cout << "Welcome, " + currentUsername + "!" << std::endl;
 	std::cout << "=================================" << std::endl;
-    std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet, exit" << std::endl;
+    std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet, options, exit" << std::endl;
     std::string request;
     std::getline(std::cin, request);
     if (request == "seeLibrary") {
@@ -146,6 +149,8 @@ std::cout << std::endl;
        walletSection();
 	} else if (request == "exit") {
 		exit(0);
+	} else if (request == "options" {
+		optionsSection();
     } else {
        std::cout << "Wrong prompt." << std::endl;
        mainSection();
@@ -253,6 +258,53 @@ if (rq == "main") {
 }
 
 return 0;
+}
+
+auto optionsSection() -> int {
+	std::cout << std::endl;
+    std::cout << std::endl;
+
+	std::cout << "=======" << std::endl;
+	std::cout << "Options" << std::endl;
+	std::cout << "=======" << std::endl;
+	std::cout << std::endl;
+
+	std::string rq;
+	std::cout << "What do you want to do? Type: changeUsername, changePassword, exit:" << std::endl;
+	std::getline(std::cin, rq);
+	if (rq == "changeUsername") {
+		std::string us;
+		std::cout << "Type a new username:" << std::endl;
+		std::getline(std::cin, us);
+
+		//function modifying username
+
+
+
+	} else if (rq == "changePassword") {
+		std::string ps;
+		std::cout << "Type a new password:" << std::endl;
+		std::getline(std::cin, ps);
+		std::string psC;
+		std::cout << "Repeat password:" << std::endl;
+		std::getline(std::cin, psC);
+		if (ps == psC) {
+
+			//function changing password
+
+		} else {
+			std::cout << "The passwords differ. Please try again." << std::endl;
+			optionsSection();
+		}
+
+	} else if (rq == "exit") {
+		mainSection();
+	} else {
+		std::cerr << "Wrong prompt.";
+	}
+
+	return 0;
+
 }
 
 auto connectDB() -> void {
