@@ -61,10 +61,10 @@ Game game9("jjj", "dddd", 1999, 4, "000");
 
 //callbacks (for getting info from the database)
 
-auto callback(void* NotUsed, int argc, char** argv, char** azColName) {
+auto callback(void* NotUsed, int argc, char** argv, char** ColumnName) {
 	for (int i = 0; i < argc; i++)
 	{
-		std::cout << azColName[i] << ": " << argv[i] << std::endl;
+		std::cout << ColumnName[i] << ": " << argv[i] << std::endl;
 	}
 
 	std::cout << std::endl;
@@ -72,7 +72,7 @@ auto callback(void* NotUsed, int argc, char** argv, char** azColName) {
 	return 0;
 }
 
-auto callbackRetrieve(void* NotUsed, int argc, char** argv, char** azColName) {
+auto callbackRetrieve(void* NotUsed, int argc, char** argv, char** ColumnName) {
 	retrieved.clear();
 	for (int i = 0; i < argc; i++)
 	{
@@ -82,7 +82,7 @@ auto callbackRetrieve(void* NotUsed, int argc, char** argv, char** azColName) {
 	return 0;
 }
 
-auto callbackModify(void* NotUsed, int argc, char** argv, char** azColName) {
+auto callbackModify(void* NotUsed, int argc, char** argv, char** ColumnName) {
 	return 0;
 }
 
@@ -98,7 +98,10 @@ return 0;
 auto loginWindow() -> int {
 
 std::cout << std::endl;
+std::cout << "=========================================" << std::endl;
 std::cout << "Welcome to the Game Store. Please log in:" << std::endl;
+std::cout << "=========================================" << std::endl;
+std::cout << std::endl;
 std::cout << "Login: " << std::endl;
 std::string lg;
 std::getline(std::cin, lg);
@@ -124,9 +127,9 @@ auto mainSection() -> int {
 
 std::cout << std::endl;
 	std::cout << std::endl;
-	std::cout << "Game Store opened successfully." << std::endl;
-	std::cout << std::endl;
+	std::cout << "=================================" << std::endl;
 	std::cout << "Welcome, " + currentUsername + "!" << std::endl;
+	std::cout << "=================================" << std::endl;
     std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet, exit" << std::endl;
     std::string request;
     std::getline(std::cin, request);
@@ -149,8 +152,9 @@ return 0;
 auto librarySection() -> int {
 
 std::cout << std::endl;
-std::cout << std::endl;
+std::cout << "==================" << std::endl;
 std::cout << "Your game library:" << std::endl;
+std::cout << "==================" << std::endl;
 std::cout << std::endl;
 
 authGameLibrary(currentOwnershipID);
@@ -186,11 +190,17 @@ return 0;
 
 auto storeSection() -> int {
 
+std::cout << std::endl;
+
+std::cout << "==============================" << std::endl;
 std::cout << "Games available in the store: " << std::endl;
+std::cout << "==============================" << std::endl;
 std::cout << std::endl;
 authStore();
 std::cout << std::endl;
-std::cout << "Your wallet's balance is: " << CurrentWalletBalance << "." << std::endl; 
+std::cout << "==========================" << std::endl;
+std::cout << "Your wallet's balance is: " << CurrentWalletBalance << "." << std::endl;
+std::cout << "==========================" << std::endl;
 std::cout << std::endl;
 
 std::string gameBuyQuery;
@@ -222,7 +232,9 @@ auto walletSection() -> int {
 std::cout << std::endl;
 std::cout << std::endl;
 
+std::cout << "====================================" << std::endl;
 std::cout << "Your wallet's balance is currently: " << CurrentWalletBalance << "." << std::endl;
+std::cout << "====================================" << std::endl;
 
 std::string rq;
 
