@@ -41,6 +41,7 @@ auto optionsSection() -> int;
 auto updatePasswordInDatabase(std::string pass, std::string id) -> void;
 auto updateUsernameInDatabase(std::string newUsername, std::string id) -> void;
 auto changeUsername(std::string nUsername, std::string id) -> void;
+auto checkIfNumber(std::string str) -> bool;
 
 //variables
 bool loginAuth;
@@ -181,6 +182,10 @@ if (rq == "x") {
 	std::string pr;
 	std::cout << "Enter the price you want to sell it for: " << std::endl;
 	std::getline(std::cin, pr);
+	if (checkIfNumber(pr) != true) {
+		std::cerr << "Non-numeric value." << std::endl;
+		librarySection();
+	}
 	authGameSell(currentUserID, rq, currentOwnershipID, std::stoi(pr));
 }
 
@@ -308,6 +313,17 @@ auto optionsSection() -> int {
 	return 0;
 
 }
+
+auto checkIfNumber(std::string str) -> bool {
+
+    for (char ch : str) {
+        if (std::isdigit(ch) == false) {
+             return false;
+		}
+    }
+    return true;
+
+ }
 
 auto connectDB() -> void {
 
@@ -680,6 +696,7 @@ auto updatePriceGameInDatabase(std::string query, int value, std::string ownersh
 		}
 
 	sqlite3_close(db);
+
 }
 
 auto updateOIDInDatabase(std::string ow, int value) -> void {
