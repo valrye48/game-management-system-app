@@ -42,6 +42,7 @@ auto updatePasswordInDatabase(std::string pass, std::string id) -> void;
 auto updateUsernameInDatabase(std::string newUsername, std::string id) -> void;
 auto changeUsername(std::string nUsername, std::string id) -> void;
 auto checkIfNumber(std::string str) -> bool;
+auto checkIfGameExists(std::string game) -> bool;
 
 //variables
 bool loginAuth;
@@ -179,12 +180,32 @@ std::getline(std::cin, rq);
 if (rq == "x") {
 	mainSection();
 } else {
+    if (checkIfGameExists(rq) != true) {
+       std::cerr << "The title you've input does no exist in the database." << std::endl;
+       std::string rq1;
+       std::cout << "Type 'main' in order to return to main section: ";
+       std::getline(std::cin, rq1);
+       if (rq1 == "main") {
+	      mainSection();
+       } else {
+	      std::cerr << "Wrong prompt." << std::endl;
+	      librarySection();
+      }
+    }
 	std::string pr;
 	std::cout << "Enter the price you want to sell it for: " << std::endl;
 	std::getline(std::cin, pr);
 	if (checkIfNumber(pr) != true) {
 		std::cerr << "Non-numeric value." << std::endl;
-		librarySection();
+        std::string rq1;
+		std::cout << "Type 'main' in order to return to main section: ";
+        std::getline(std::cin, rq1);
+        if (rq1 == "main") {
+	      mainSection();
+        } else {
+	      std::cerr << "Wrong prompt." << std::endl;
+	      librarySection();
+       }
 	}
 	authGameSell(currentUserID, rq, currentOwnershipID, std::stoi(pr));
 }
@@ -198,7 +219,7 @@ if (rq1 == "main") {
 	mainSection();
 } else {
 	std::cerr << "Wrong prompt." << std::endl;
-	storeSection();
+	librarySection();
 }
 
 return 0;
@@ -783,6 +804,18 @@ auto authGameSell(std::string userid, std::string query, std::string ownership, 
 	} else {
 		std::cerr << "The name you've input does not exist in the database." << std::endl;
 	}
+
+    sqlite3_close(db);
+}
+
+auto checkIfGameExists(std::string game) -> bool {
+    sqlite3_open("mainDatabase.db", &db);
+    getValueFromTableDBGame("TITLE", game);
+    if (game == valueFromDB) {
+       return true;
+    } else {
+       return false;
+    }
 
     sqlite3_close(db);
 }
