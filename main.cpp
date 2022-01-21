@@ -76,7 +76,7 @@ Game game12("Spiel", "ADev", 2006, 30, "202");
 auto callback(void* NotUsed, int argc, char** argv, char** ColumnName) {
 	for (int i = 0; i < argc; i++)
 	{
-		std::cout << ColumnName[i] << ": " << argv[i] << std::endl;
+		std::cout << "                   " << ColumnName[i] << ": " << argv[i] << std::endl;
 	}
 
 	std::cout << std::endl;
@@ -110,15 +110,15 @@ return 0;
 auto loginWindow() -> int {
 
 std::cout << std::endl;
-std::cout << "=========================================" << std::endl;
-std::cout << "Welcome to the Game Store. Please log in:" << std::endl;
-std::cout << "=========================================" << std::endl;
+std::cout << "                   =========================================" << std::endl;
+std::cout << "                   Welcome to the Game Store. Please log in:" << std::endl;
+std::cout << "                   =========================================" << std::endl;
 std::cout << std::endl;
-std::cout << "Login: " << std::endl;
+std::cout << "                   Login: ";
 std::string lg;
 std::getline(std::cin, lg);
 authLogin(lg);
-std::cout << "Password: " << std::endl;
+std::cout << "                   Password: ";
 std::string ps;
 std::getline(std::cin, ps);
 authPassword(ps);
@@ -127,7 +127,8 @@ if (loginAuth == true && passwordAuth == true) {
 		mainSection();
 	}
 	else {
-		std::cout << "Your login and password details could not be authenticated." << std::endl;
+		std::cout << std::endl;
+		std::cout << "           Your login and password details could not be authenticated." << std::endl;
 		exit(0);
 	}
 
@@ -139,10 +140,12 @@ auto mainSection() -> int {
 
 std::cout << std::endl;
 	std::cout << std::endl;
-	std::cout << "=================================" << std::endl;
-	std::cout << "Welcome, " + currentUsername + "!" << std::endl;
-	std::cout << "=================================" << std::endl;
-    std::cout << "What do you want to do? Type: seeLibrary, seeStore, seeWallet, options, exit" << std::endl;
+	std::cout << "                   =================================" << std::endl;
+	std::cout << "                   Welcome, " + currentUsername + "!" << std::endl;
+	std::cout << "                   =================================" << std::endl;
+	std::cout << std::endl;
+    std::cout << "                   What do you want to do? Type: seeLibrary," << std::endl;
+	std::cout << "                   seeStore, seeWallet, options, exit: ";
     std::string request;
     std::getline(std::cin, request);
     if (request == "seeLibrary") {
@@ -156,7 +159,7 @@ std::cout << std::endl;
 	} else if (request == "options") {
 		optionsSection();
     } else {
-       std::cout << "Wrong prompt." << std::endl;
+       std::cout << "                   Wrong prompt." << std::endl;
        mainSection();
     }
 
@@ -166,44 +169,45 @@ return 0;
 auto librarySection() -> int {
 
 std::cout << std::endl;
-std::cout << "==================" << std::endl;
-std::cout << "Your game library:" << std::endl;
-std::cout << "==================" << std::endl;
+std::cout << "                   ==================" << std::endl;
+std::cout << "                   Your game library:" << std::endl;
+std::cout << "                   ==================" << std::endl;
 std::cout << std::endl;
 
 authGameLibrary(currentOwnershipID);
 
 std::string rq;
 
-std::cout << "Enter the title of the game you want to sell OR type 'x' to exit to the main section:";
+std::cout << "                   Enter the title of the game you want to sell" << std::endl;
+std::cout << "                   OR type 'x' to exit to the main section:";
 std::getline(std::cin, rq);
 if (rq == "x") {
 	mainSection();
 } else {
     if (checkIfGameExists(rq) != true) {
-       std::cerr << "The title you've input does no exist in the database." << std::endl;
+       std::cerr << "                   The title you've input does no exist in the database." << std::endl;
        std::string rq1;
-       std::cout << "Type 'main' in order to return to main section: ";
+       std::cout << "                   Type 'main' in order to return to main section: ";
        std::getline(std::cin, rq1);
        if (rq1 == "main") {
 	      mainSection();
        } else {
-	      std::cerr << "Wrong prompt." << std::endl;
+	      std::cerr << "                   Wrong prompt." << std::endl;
 	      librarySection();
       }
     }
 	std::string pr;
-	std::cout << "Enter the price you want to sell it for: " << std::endl;
+	std::cout << "                   Enter the price you want to sell it for: ";
 	std::getline(std::cin, pr);
 	if (checkIfNumber(pr) != true) {
-		std::cerr << "Non-numeric value." << std::endl;
+		std::cerr << "                   Non-numeric value." << std::endl;
         std::string rq1;
-		std::cout << "Type 'main' in order to return to main section: ";
+		std::cout << "                   Type 'main' in order to return to main section: ";
         std::getline(std::cin, rq1);
         if (rq1 == "main") {
 	      mainSection();
         } else {
-	      std::cerr << "Wrong prompt." << std::endl;
+	      std::cerr << "                   Wrong prompt." << std::endl;
 	      librarySection();
        }
 	}
@@ -213,12 +217,12 @@ if (rq == "x") {
 std::string rq1;
 
 std::cout << std::endl;
-std::cout << "Type 'main' in order to return to main section: ";
+std::cout << "                   Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq1);
 if (rq1 == "main") {
 	mainSection();
 } else {
-	std::cerr << "Wrong prompt." << std::endl;
+	std::cerr << "                   Wrong prompt." << std::endl;
 	librarySection();
 }
 
@@ -230,19 +234,20 @@ auto storeSection() -> int {
 
 std::cout << std::endl;
 
-std::cout << "==============================" << std::endl;
-std::cout << "Games available in the store: " << std::endl;
-std::cout << "==============================" << std::endl;
+std::cout << "                   ==============================" << std::endl;
+std::cout << "                   Games available in the store: " << std::endl;
+std::cout << "                   ==============================" << std::endl;
 std::cout << std::endl;
 authStore();
 std::cout << std::endl;
-std::cout << "==========================" << std::endl;
-std::cout << "Your wallet's balance is: " << CurrentWalletBalance << "." << std::endl;
-std::cout << "==========================" << std::endl;
+std::cout << "                   ==========================" << std::endl;
+std::cout << "                   Your wallet's balance is: " << CurrentWalletBalance << "." << std::endl;
+std::cout << "                   ==========================" << std::endl;
 std::cout << std::endl;
 
 std::string gameBuyQuery;
-std::cout << "Enter the title of the game you want to buy OR type 'x' to exit to the main section:" << std::endl;
+std::cout << "                   Enter the title of the game you want to buy" << std::endl;
+std::cout << "                   OR type 'x' to exit to the main section:";
 std::getline(std::cin, gameBuyQuery);
 if (gameBuyQuery == "x") {
 	mainSection();
@@ -253,12 +258,12 @@ if (gameBuyQuery == "x") {
 std::string rq;
 
 std::cout << std::endl;
-std::cout << "Type 'main' in order to return to main section: ";
+std::cout << "                   Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
 } else {
-	std::cerr << "Wrong prompt." << std::endl;
+	std::cerr << "                   Wrong prompt." << std::endl;
 	storeSection();
 }
 
@@ -270,18 +275,18 @@ auto walletSection() -> int {
 std::cout << std::endl;
 std::cout << std::endl;
 
-std::cout << "====================================" << std::endl;
-std::cout << "Your wallet's balance is currently: " << CurrentWalletBalance << "." << std::endl;
-std::cout << "====================================" << std::endl;
+std::cout << "                   ====================================" << std::endl;
+std::cout << "                   Your wallet's balance is currently: " << CurrentWalletBalance << "." << std::endl;
+std::cout << "                   ====================================" << std::endl;
 
 std::string rq;
 
-std::cout << "Type 'main' in order to return to main section: ";
+std::cout << "                   Type 'main' in order to return to main section: ";
 std::getline(std::cin, rq);
 if (rq == "main") {
 	mainSection();
 } else {
-	std::cerr << "Wrong prompt." << std::endl;
+	std::cerr << "                   Wrong prompt." << std::endl;
 	walletSection();
 }
 
@@ -292,17 +297,18 @@ auto optionsSection() -> int {
 	std::cout << std::endl;
     std::cout << std::endl;
 
-	std::cout << "=======" << std::endl;
-	std::cout << "Options" << std::endl;
-	std::cout << "=======" << std::endl;
+	std::cout << "                   =======" << std::endl;
+	std::cout << "                   Options" << std::endl;
+	std::cout << "                   =======" << std::endl;
 	std::cout << std::endl;
 
 	std::string rq;
-	std::cout << "What do you want to do? Type: changeUsername, changePassword, exit:" << std::endl;
+	std::cout << "                   What do you want to do? Type: " << std::endl;
+	std::cout << "                   changeUsername, changePassword, exit:";
 	std::getline(std::cin, rq);
 	if (rq == "changeUsername") {
 		std::string us;
-		std::cout << "Type a new username:" << std::endl;
+		std::cout << "                   Type a new username:" << std::endl;
 		std::getline(std::cin, us);
 
 		updateUsernameInDatabase(us, currentUserID);
@@ -311,23 +317,23 @@ auto optionsSection() -> int {
 
 	} else if (rq == "changePassword") {
 		std::string ps;
-		std::cout << "Type a new password:" << std::endl;
+		std::cout << "                   Type a new password:";
 		std::getline(std::cin, ps);
 		std::string psC;
-		std::cout << "Repeat password:" << std::endl;
+		std::cout << "                   Repeat password:";
 		std::getline(std::cin, psC);
 		if (ps == psC) {
 			updatePasswordInDatabase(ps, currentUserID);
 			optionsSection();
 		} else {
-			std::cout << "The passwords differ. Please try again." << std::endl;
+			std::cout << "                   The passwords differ. Please try again." << std::endl;
 			optionsSection();
 		}
 
 	} else if (rq == "exit") {
 		mainSection();
 	} else {
-		std::cerr << "Wrong prompt.";
+		std::cerr << "                   Wrong prompt.";
 		optionsSection();
 	}
 
@@ -713,7 +719,7 @@ auto updatePriceGameInDatabase(std::string query, int value, std::string ownersh
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, 0)) {
 			std::cerr << "Update failed." << std::endl;
 		} else {
-			std::cout << "Your price was set." << std::endl;
+			std::cout << "                   Your price was set." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -727,7 +733,7 @@ auto updateOIDInDatabase(std::string ow, int value) -> void {
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, 0)) {
 			std::cerr << "Failed." << std::endl;
 		} else {
-			std::cout << "Success - game details were updated." << std::endl;
+			std::cout << "                   Success - game details were updated." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -741,7 +747,7 @@ auto changeUsername(std::string nUsername, std::string id) -> void {
 	    if (sqlite3_exec(db, update.c_str(), callbackModify, 0, 0)) {
 			std::cerr << "Failed." << std::endl;
 		} else {
-			std::cout << "Username changed." << std::endl;
+			std::cout << "                   Username changed." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -764,7 +770,7 @@ auto updatePasswordInDatabase(std::string pass, std::string id) -> void {
 	if (sqlite3_exec(db, update.c_str(), callbackModify, 0, 0)) {
 			std::cerr << "Failed." << std::endl;
 		} else {
-			std::cout << "Password changed." << std::endl;
+			std::cout << "                   Password changed." << std::endl;
 		}
 
 	sqlite3_close(db);
@@ -782,10 +788,10 @@ auto authGamePurchase(std::string query, std::string ownership) -> void {
 		CurrentWalletBalance = updatedBalance;
 		updatePriceInDatabase(currentUserID, updatedBalance);
 	} else {
-		std::cerr << "Not enough funds." << std::endl;
+		std::cerr << "                   Not enough funds." << std::endl;
 	}
 	} else {
-		std::cerr << "The name you've input does not exist in the database." << std::endl;
+		std::cerr << "                   The name you've input does not exist in the database." << std::endl;
 	}
 	
 	
@@ -802,7 +808,7 @@ auto authGameSell(std::string userid, std::string query, std::string ownership, 
 		updatePriceInDatabase(currentUserID, updatedBalance);
 		updateOIDInDatabase(query, 000);
 	} else {
-		std::cerr << "The name you've input does not exist in the database." << std::endl;
+		std::cerr << "                   The name you've input does not exist in the database." << std::endl;
 	}
 
     sqlite3_close(db);
