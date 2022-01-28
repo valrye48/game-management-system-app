@@ -200,7 +200,7 @@ if (rq == "x") {
 	std::cout << "                   Enter the price you want to sell it for: ";
 	std::getline(std::cin, pr);
 	if (checkIfNumber(pr) != true) {
-		std::cerr << "                   Non-numeric value." << std::endl;
+		std::cerr << "                   Non-integer value." << std::endl;
         std::string rq1;
 		std::cout << "                   Type 'main' in order to return to main section: ";
         std::getline(std::cin, rq1);
